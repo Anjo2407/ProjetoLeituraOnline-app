@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: API de Sincronizacao - Leitura Online
+  version: 1.0.0
+  description: API em portugues para sincronizar progresso de leitura e marcadores.
+paths:
+  /sincronizar:
+    post:
+      summary: Sincroniza dados locais com o servidor remoto
+      description: O aplicativo envia as modificações de progresso e marcadores feitas offline e recebe as atualizações da nuvem.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ultima_verificacao:
+                  type: string
+                  format: date-time
+                  description: Timestamp da ultima sincronizacao feita pelo celular.
+                progresso_local:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/LivroUsuario'
+                marcadores_locais:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Marcador'
+      responses:
+        '200':
+          description: Sincronizacao feita com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  atualizacoes_servidor:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LivroUsuario'
+                  atualizacoes_marcadores:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Marcador'
+                  horario_servidor:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+    LivroUsuario:
+      type: object
+      required:
+        - id
+        - usuario_id
+        - livro_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        usuario_id:
+          type: string
+          format: uuid
+        livro_id:
+          type: string
+          format: uuid
+        ultima_pagina_lida:
+          type: integer
+          default: 0
+        status:
+          type: string
+          enum: [LENDO, CONCLUIDO, ABANDONADO]
+        atualizado_em:
+          type: string
+          format: date-time
+
+    Marcador:
+      type: object
+      required:
+        - id
+        - usuario_id
+        - livro_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        usuario_id:
+          type: string
+          format: uuid
+        livro_id:
+          type: string
+          format: uuid
+        numero_pagina:
+          type: integer
+        texto_nota:
+          type: string
+        excluido:
+          type: boolean
+          default: false
+        atualizado_em:
+          type: string
+          format: date-time
